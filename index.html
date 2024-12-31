@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yellowstone Trivia Game</title>
+    <style>
+  body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            max-width: 90%;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .game-container {
+                padding: 15px;
+            }
+
+            button {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Yellowstone Trivia Game</h1>
+        <div id="question-container" class="hidden">
+            <p id="question"></p>
+            <div id="choices"></div>
+        </div>
+        <button id="start-btn">Start Game</button>
+        <p id="score" class="hidden"></p>
+    </div>
+
+    <script>
+const seasons = {
+            1: [
+                { question: "What is the name of the ranch owned by the Dutton family?", choices: ["Yellowstone Dutton Ranch", "Broken Rock Ranch", "Montana Estate", "Big Sky Ranch"], answer: 0 },
+                { question: "Who plays the role of John Dutton?", choices: ["Kevin Costner", "Harrison Ford", "Sam Elliott", "Jeff Bridges"], answer: 0 },
+                { question: "Who is the lawyer and only daughter of John Dutton?", choices: ["Beth Dutton", "Monica Dutton", "Jamie Dutton", "Teeter"], answer: 0 },
+                { question: "Which character serves as the ranch foreman?", choices: ["Rip Wheeler", "Lloyd Pierce", "Walker", "Jimmy Hurdstrom"], answer: 0 },
+                { question: "What is the name of the Native American tribe that frequently comes into conflict with the Dutton family?", choices: ["Broken Rock Reservation", "Crow Nation", "Cheyenne Tribe", "Blackfeet Nation"], answer: 0 },
+                { question: "What is Kayce Dutton's wife’s name?", choices: ["Monica", "Beth", "Laramie", "Teeter"], answer: 0 },
+                { question: "Who is the Chairman of the Broken Rock Reservation?", choices: ["Thomas Rainwater", "Dan Jenkins", "Walker", "Jamie Dutton"], answer: 0 },
+                { question: "What is Jamie Dutton's profession?", choices: ["Lawyer", "Ranch Hand", "Sheriff", "Politician"], answer: 0 },
+                { question: "Which Dutton child is killed in Season 1?", choices: ["Lee", "Kayce", "Jamie", "Beth"], answer: 0 },
+                { question: "What is the name of the bar the ranch hands visit?", choices: ["The Broken Rock Bar", "The Saddle Horn", "Big Sky Saloon", "Montana Tavern"], answer: 0 },
+                { question: "Which character kills Lee's murderer?", choices: ["Kayce", "John", "Rip", "Jamie"], answer: 0 },
+                { question: "What animal is used as the brand for the ranch?", choices: ["Y", "Bison", "Eagle", "Wolf"], answer: 0 },
+                { question: "Who is Rip Wheeler's love interest?", choices: ["Beth", "Monica", "Teeter", "Abby"], answer: 0 },
+                { question: "What does Jimmy Hurdstrom receive to mark his loyalty?", choices: ["A brand", "A new horse", "A saddle", "A truck"], answer: 0 },
+                { question: "Where does Kayce kill Lee’s murderer?", choices: ["In the river", "In a field", "At the reservation", "In the mountains"], answer: 0 },
+                { question: "What medical condition does John Dutton suffer from?", choices: ["Colon cancer", "Heart attack", "Broken leg", "Liver failure"], answer: 0 },
+                { question: "Which character is a former Navy SEAL?", choices: ["Kayce", "Jamie", "Rip", "Walker"], answer: 0 },
+                { question: "Who burns down Dan Jenkins' field?", choices: ["Kayce", "Beth", "Rip", "John"], answer: 1 },
+                { question: "What is the primary antagonist's role in Season 1?", choices: ["Land Developer", "Governor", "Rancher", "Sheriff"], answer: 0 },
+                { question: "What is the main conflict in Season 1?", choices: ["Land disputes", "Family betrayal", "Cattle theft", "A murder mystery"], answer: 0 }
+            ],
+            2: [
+                { question: "What major event threatens the Dutton family in Season 2?", choices: ["A land developer", "The Beck brothers", "A new governor", "A murder case"], answer: 1 },
+                { question: "Who becomes a primary antagonist in Season 2?", choices: ["Malcolm Beck", "Thomas Rainwater", "Dan Jenkins", "Wade Morrow"], answer: 0 },
+                { question: "What is the relationship between the Beck brothers?", choices: ["Business partners", "Ranchers", "Politicians", "Criminals"], answer: 3 },
+                { question: "Who is kidnapped in Season 2?", choices: ["Tate Dutton", "Beth Dutton", "Kayce Dutton", "Rip Wheeler"], answer: 0 },
+                { question: "What do the Beck brothers want from the Duttons?", choices: ["Land", "Money", "Cattle", "A partnership"], answer: 0 },
+                { question: "Who kills Malcolm Beck?", choices: ["John Dutton", "Kayce Dutton", "Rip Wheeler", "Jamie Dutton"], answer: 1 },
+                { question: "Who is the ranch's cook and a key member of the Dutton family?", choices: ["Gator", "Lloyd", "Walker", "Jimmy"], answer: 0 },
+                { question: "Which character leaves the ranch in Season 2?", choices: ["Walker", "Lloyd", "Rip Wheeler", "Beth Dutton"], answer: 0 },
+                { question: "What does Beth Dutton face in her office?", choices: ["An attack", "A promotion", "A lawsuit", "A business deal"], answer: 0 },
+                { question: "Who protects Beth during the attack?", choices: ["Rip Wheeler", "Kayce Dutton", "John Dutton", "Walker"], answer: 1 },
+                { question: "What motivates Jamie Dutton in Season 2?", choices: ["Political ambition", "Family loyalty", "Guilt", "Land disputes"], answer: 2 },
+                { question: "Who advises Monica to take Tate to therapy?", choices: ["Kayce", "John", "Beth", "Thomas Rainwater"], answer: 3 },
+                { question: "What kind of business does Dan Jenkins own?", choices: ["Land development", "Casino", "Cattle ranch", "Retail"], answer: 1 },
+                { question: "Who helps John Dutton with legal matters in Season 2?", choices: ["Jamie", "Beth", "Kayce", "Rip"], answer: 0 },
+                { question: "What is Kayce's role on the ranch in Season 2?", choices: ["Livestock commissioner", "Foreman", "Cook", "Caretaker"], answer: 0 },
+                { question: "Which character becomes more involved with Thomas Rainwater's plans?", choices: ["Monica", "John", "Jamie", "Beth"], answer: 0 },
+                { question: "What is Rip Wheeler’s main responsibility on the ranch?", choices: ["Protecting the Duttons", "Herding cattle", "Cooking", "Managing finances"], answer: 0 },
+                { question: "Where does the Beck brothers' final confrontation take place?", choices: ["The Dutton Ranch", "The Becks' estate", "Broken Rock Reservation", "A remote location"], answer: 3 },
+                { question: "What does Tate find in the woods?", choices: ["A horse", "A snake", "A cabin", "A dog"], answer: 2 },
+                { question: "How does Season 2 end?", choices: ["A victory for the Duttons", "A truce with the Becks", "A cliffhanger", "A funeral"], answer: 0 }
+            ],
+
+            3: [
+                { question: "What shocking event ends Season 3?", choices: ["Attacks on the Duttons", "A ranch sale", "A betrayal", "A wedding"], answer: 0 },
+                { question: "Who tries to buy the ranch in Season 3?", choices: ["Market Equities", "Broken Rock", "Dan Jenkins", "The Governor"], answer: 0 },
+                { question: "What is Market Equities' goal in Season 3?", choices: ["Build an airport", "Develop a casino", "Acquire cattle", "Start a rival ranch"], answer: 0 },
+                { question: "Who proposes to Beth in Season 3?", choices: ["Rip Wheeler", "Kayce Dutton", "Jamie Dutton", "Walker"], answer: 0 },
+                { question: "What secret about Beth is revealed in Season 3?", choices: ["She can't have children", "She has a twin", "She owns land", "She plans to leave"], answer: 0 },
+                { question: "Which character faces a tragic loss in Season 3?", choices: ["Monica", "John", "Beth", "Jamie"], answer: 2 },
+                { question: "Who attacks the ranch during Season 3?", choices: ["Market Equities", "A rival ranch", "A militia group", "The Beck brothers"], answer: 2 },
+                { question: "What does Jamie learn about his past in Season 3?", choices: ["He was adopted", "He has a secret sibling", "He owns land", "He is not a Dutton"], answer: 0 },
+                { question: "What role does Thomas Rainwater play in Season 3?", choices: ["An ally to John", "A rival rancher", "A land developer", "An enemy of Beth"], answer: 0 },
+                { question: "Who helps John during the attacks in the finale?", choices: ["Rip", "Kayce", "Monica", "Jamie"], answer: 1 },
+                { question: "Which character expresses their intent to leave the ranch?", choices: ["Walker", "Rip", "Monica", "Beth"], answer: 0 },
+                { question: "Where does Kayce set up his new home?", choices: ["On the ranch", "In a cabin", "In a trailer", "In a tent"], answer: 1 },
+                { question: "What happens to Monica during Season 3?", choices: ["She becomes a teacher", "She leads a protest", "She gets injured", "She leaves Kayce"], answer: 0 },
+                { question: "Which character develops a stronger bond with John?", choices: ["Tate", "Jamie", "Rip", "Walker"], answer: 2 },
+                { question: "What business deal does Beth sabotage in Season 3?", choices: ["Market Equities airport deal", "Casino development", "Rival ranch acquisition", "Governor's land grant"], answer: 0 },
+                { question: "Who is assigned as John Dutton's attorney?", choices: ["Jamie", "Beth", "A new lawyer", "Thomas Rainwater"], answer: 2 },
+                { question: "Which character becomes a target for Market Equities?", choices: ["Beth", "Kayce", "Monica", "Jamie"], answer: 0 },
+                { question: "What major decision does Jamie make in Season 3?", choices: ["Turning against John", "Joining Market Equities", "Buying land", "Quitting law"], answer: 0 },
+                { question: "Who returns to the ranch after a long absence?", choices: ["Walker", "Lloyd", "Teeter", "Abby"], answer: 0 },
+                { question: "What message does John leave at the end of Season 3?", choices: ["A warning to enemies", "A letter to Beth", "An apology to Jamie", "A will"], answer: 0 }
+            ],
+            4: [
+                { question: "What is the aftermath of the attacks in Season 4?", choices: ["Revenge", "Relocation", "New allies", "A truce"], answer: 0 },
+                { question: "Who does Beth clash with in Season 4?", choices: ["Caroline Warner", "Jamie Dutton", "John Dutton", "Rip Wheeler"], answer: 0 },
+                { question: "Who takes over the ranch operations temporarily?", choices: ["Rip Wheeler", "Kayce Dutton", "Beth Dutton", "Lloyd"], answer: 1 },
+                { question: "What does Kayce take on as a new role in Season 4?", choices: ["Tribal Commissioner", "Sheriff", "Governor's Advisor", "Livestock Agent"], answer: 0 },
+                { question: "What is John Dutton's main focus in Season 4?", choices: ["Protecting the ranch", "Running for office", "Revenge", "Expanding his land"], answer: 2 },
+                { question: "Which character struggles with loyalty to the Duttons?", choices: ["Jamie", "Beth", "Walker", "Rip"], answer: 0 },
+                { question: "Who tries to take legal action against the Dutton family?", choices: ["Jamie", "Caroline Warner", "Rainwater", "Walker"], answer: 1 },
+                { question: "What new character is introduced as a rival to Beth?", choices: ["Caroline Warner", "Summer Higgins", "Ellis Steele", "Angela Blue Thunder"], answer: 0 },
+                { question: "Who gets into a physical fight in the bunkhouse?", choices: ["Walker and Lloyd", "Rip and Kayce", "Jimmy and Walker", "Lloyd and Rip"], answer: 0 },
+                { question: "Who is sent away from the ranch to train at the Four Sixes?", choices: ["Jimmy", "Walker", "Lloyd", "Colby"], answer: 0 },
+                { question: "What animal does Kayce see during his vision quest?", choices: ["Wolf", "Bear", "Eagle", "Bison"], answer: 0 },
+                { question: "What legal role does Jamie assume in Season 4?", choices: ["Attorney General", "District Attorney", "Public Defender", "Private Lawyer"], answer: 0 },
+                { question: "Who does Beth take in and mentor?", choices: ["Carter", "Jimmy", "Colby", "Walker"], answer: 0 },
+                { question: "Where does Jimmy meet his new love interest?", choices: ["The Four Sixes Ranch", "Broken Rock Reservation", "The Dutton Ranch", "A rodeo"], answer: 0 },
+                { question: "What is Beth’s reaction to John helping Summer Higgins?", choices: ["Anger", "Support", "Indifference", "Amusement"], answer: 0 },
+                { question: "Who threatens to expose Jamie's secret?", choices: ["Beth", "John", "Rip", "Rainwater"], answer: 0 },
+                { question: "What organization does Caroline Warner represent?", choices: ["Market Equities", "Broken Rock", "State Government", "Four Sixes Ranch"], answer: 0 },
+                { question: "What event causes tension between Lloyd and Walker?", choices: ["A fight over a guitar", "A love triangle", "Disagreements over bunkhouse rules", "Cattle theft"], answer: 1 },
+                { question: "What advice does John give Jimmy before leaving?", choices: ["Stay loyal", "Learn to be a cowboy", "Don’t come back", "Trust Rip"], answer: 2 },
+                { question: "How does Season 4 end?", choices: ["Beth confronts Jamie", "John announces a political campaign", "Kayce has a vision", "A bunkhouse party"], answer: 0 }
+            ],
+
+            5: [
+                { question: "What political ambition does John Dutton pursue in Season 5?", choices: ["Governor", "Senator", "President", "Sheriff"], answer: 0 },
+                { question: "Who faces legal trouble in Season 5?", choices: ["Jamie Dutton", "Beth Dutton", "Kayce Dutton", "Rip Wheeler"], answer: 0 },
+                { question: "Who becomes a key opponent of John Dutton's political career?", choices: ["Caroline Warner", "Jamie Dutton", "Summer Higgins", "Thomas Rainwater"], answer: 1 },
+                { question: "What is Beth's role in helping John as governor?", choices: ["Chief of Staff", "Advisor", "Campaign Manager", "Legal Counsel"], answer: 1 },
+                { question: "Who does Kayce bond with during his vision quest?", choices: ["Tate", "A wolf", "Monica", "Thomas Rainwater"], answer: 1 },
+                { question: "Which business tries to take over the Dutton ranch in Season 5?", choices: ["Market Equities", "Broken Rock", "Beck Brothers", "Four Sixes Ranch"], answer: 0 },
+                { question: "What relationship develops between Rip and Carter?", choices: ["Father-son bond", "Friends", "Mentor-student", "Enemies"], answer: 0 },
+                { question: "What does Jamie plot against John in Season 5?", choices: ["Impeachment", "A lawsuit", "Betrayal", "An election challenge"], answer: 3 },
+                { question: "Who does Beth confront in her efforts to protect the ranch?", choices: ["Caroline Warner", "Jamie Dutton", "Ellis Steele", "Summer Higgins"], answer: 0 },
+                { question: "What is the focus of Thomas Rainwater's plans in Season 5?", choices: ["Casino expansion", "Land development", "Alliance with the Duttons", "Water rights"], answer: 1 },
+                { question: "Where does Kayce decide to move his family in Season 5?", choices: ["To the ranch", "To Broken Rock", "To a new property", "Back to the city"], answer: 2 },
+                { question: "Who struggles with the new responsibilities of the ranch?", choices: ["Carter", "Walker", "Lloyd", "Teeter"], answer: 0 },
+                { question: "What does Beth use to gain leverage over Jamie?", choices: ["A photograph", "A recorded conversation", "A legal document", "A witness"], answer: 1 },
+                { question: "Who joins forces with Market Equities to challenge the Duttons?", choices: ["Jamie", "Rainwater", "Ellis Steele", "Summer"], answer: 0 },
+                { question: "What advice does John give Beth about dealing with Jamie?", choices: ["Leave him alone", "Be ruthless", "Seek compromise", "Trust him"], answer: 1 },
+                { question: "Who advises Monica during her grief in Season 5?", choices: ["Thomas Rainwater", "Beth", "John", "Kayce"], answer: 0 },
+                { question: "What conflict arises in the bunkhouse in Season 5?", choices: ["A rivalry over leadership", "Lloyd and Walker's feud", "Arguments about cattle theft", "A love triangle"], answer: 3 },
+                { question: "What event brings the family together at the end of Season 5?", choices: ["A funeral", "A wedding", "A victory celebration", "A family meeting"], answer: 1 },
+                { question: "Who confronts Jamie about his betrayal in Season 5?", choices: ["Beth", "John", "Rip", "Kayce"], answer: 0 },
+                { question: "How does Season 5 end?", choices: ["A cliffhanger", "A major death", "A political victory", "A family reunion"], answer: 0 }
+            ]
+        }; // Placeholder for your seasons data.
+
+        const startBtn = document.getElementById("start-btn");
+        const questionContainer = document.getElementById("question-container");
+        const questionElement = document.getElementById("question");
+        const choicesElement = document.getElementById("choices");
+        const scoreElement = document.getElementById("score");
+
+        let currentSeason;
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function showQuestion(questionObj) {
+            questionElement.textContent = questionObj.question;
+            choicesElement.innerHTML = "";
+            questionObj.choices.forEach((choice, index) => {
+                const button = document.createElement("button");
+                button.textContent = choice;
+                button.addEventListener("click", () => handleAnswer(index, questionObj.answer));
+                choicesElement.appendChild(button);
+            });
+        }
+
+        function handleAnswer(selectedIndex, correctIndex) {
+            if (selectedIndex === correctIndex) {
+                score++;
+                alert("Correct!");
+            } else {
+                alert("Wrong! The correct answer was: " + seasons[currentSeason][currentQuestionIndex].choices[correctIndex]);
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < seasons[currentSeason].length) {
+                showQuestion(seasons[currentSeason][currentQuestionIndex]);
+            } else {
+                endGame();
+            }
+        }
+
+        function startGame() {
+            currentSeason = parseInt(prompt("Enter a season number (1-5):"), 10);
+            if (!seasons[currentSeason]) {
+                alert("Invalid season selected. Please reload and try again.");
+                return;
+            }
+
+            score = 0;
+            currentQuestionIndex = 0;
+            startBtn.classList.add("hidden");
+            questionContainer.classList.remove("hidden");
+            scoreElement.classList.add("hidden");
+
+            showQuestion(seasons[currentSeason][currentQuestionIndex]);
+        }
+
+        function endGame() {
+            questionContainer.classList.add("hidden");
+            scoreElement.textContent = `Game Over! You scored ${score} out of ${seasons[currentSeason].length}.`;
+            scoreElement.classList.remove("hidden");
+            startBtn.textContent = "Play Again";
+            startBtn.classList.remove("hidden");
+        }
+
+        startBtn.addEventListener("click", startGame);
+    </script>
+</body>
+</html>
